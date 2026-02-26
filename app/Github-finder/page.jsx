@@ -105,9 +105,15 @@ export default function GitHubFinder() {
     setRepos([]);
 
     try {
-      // We call OUR OWN API route — the token stays on the server, never exposed
       const res = await fetch(`/api/github/user?username=${encodeURIComponent(query.trim())}`);
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setError("Server returned an invalid response. Is the API route running?");
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong.");
